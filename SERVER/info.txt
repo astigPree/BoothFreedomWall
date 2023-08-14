@@ -1,0 +1,1 @@
+this directory contain all server related information about the server
