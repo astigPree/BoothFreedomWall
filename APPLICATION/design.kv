@@ -1,0 +1,112 @@
+#:import chex kivy.utils.get_color_from_hex
+#:import Window kivy.core.window.Window
+
+MainWindow:
+	
+	tool_bar : tool_bar
+	category_bar : category_bar
+	post_feeds : post_feeds
+	refresh_button : refresh_button
+	next_page_button : next_page_button
+	
+	CustomToolBar:
+		id : tool_bar
+		size_hint : None , None
+		height : Window.size[1] * 0.088
+		width : Window.size[0]
+		pos : (0 , Window.size[1] - self.height )
+	
+	CategoryBar:
+		id : category_bar
+		size_hint : None , None
+		height : Window.size[1] * 0.05
+		width : Window.size[0] * 0.45
+		pos : ( (Window.size[0] - self.width ) / 2 , (Window.size[1] - self.height - tool_bar.height - (Window.size[1] * 0.015)) )
+	
+	PostFeeds:
+		id : post_feeds
+		size_hint : None , None
+		height : Window.size[1] * 0.79
+		width : Window.size[0] * 0.95
+		pos : ( (Window.size[0] - self.width  ) / 2 , Window.size[1] * 0.02 )
+	
+	MDFloatingActionButton:
+		id : refresh_button
+		icon : "refresh"
+		icon_size : min(Window.size) * 0.11
+		theme_icon_color: "Custom"
+		icon_color : chex("#FFFFFF")
+		md_bg_color: chex("#7F0F0F")
+		pos : ( Window.size[0] - self.width - (self.width * 0.3) ,  Window.size[1] * 0.04)
+	
+	MDFloatingActionButton:
+		id : next_page_button
+		icon : "page-next-outline"
+		icon_size : min(Window.size) * 0.11
+		theme_icon_color: "Custom"
+		icon_color : chex("#FFFFFF")
+		md_bg_color: chex("#7F0F0F")
+		pos : ( Window.size[0] - refresh_button.width - self.width - (self.width * 0.6) ,  Window.size[1] * 0.04)
+		
+		
+	
+<PostFeeds>:
+	canvas.before:
+		Color :
+			rgba : chex("#CF9797")
+		RoundedRectangle:
+			pos : self.pos
+			size : self.size
+			radius : (20,)
+	
+	MDGridLayout:
+		adaptive_height : True
+		cols : 1
+		
+		
+
+
+
+<CategoryBar>:
+	elevation: 4.5
+	shadow_offset: 0, 6
+	md_bg_color : chex("#6E1616")
+	radius : (50 , 50 , 50 , 50)
+	
+	Label:
+		text : "CATEGORY"
+		font_name : "lato_bold_italic"
+		font_size : min(self.size) * 0.45
+		color : chex("#FFFFFF")
+
+
+
+
+<CustomToolBar>:
+	elevation: 4.5
+	shadow_offset: 0, 6
+	md_bg_color : chex("#6E1616")
+	radius : (0 , 0 , 50 , 50)
+	
+	MDLabel :
+		text : "   OC  WALL"
+		font_name : "lato_bold"
+		font_size : min(self.size) * 0.55
+		color : chex("#FFFFFF")
+	
+	MDIconButton:
+		pos_hint: {"center_x": .5, "center_y": .5}
+		icon : "form-select"
+		icon_size : min(Window.size) * 0.11
+		theme_icon_color: "Custom"
+		icon_color : chex("#FFFFFF")
+	
+	MDIconButton:
+		pos_hint: {"center_x": .5, "center_y": .5}
+		icon : "cog-outline"
+		icon_size : min(Window.size) * 0.11
+		theme_icon_color: "Custom"
+		icon_color : chex("#FFFFFF")
+		
+		
+		
