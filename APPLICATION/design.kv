@@ -47,8 +47,149 @@ MainWindow:
 		icon_color : chex("#FFFFFF")
 		md_bg_color: chex("#7F0F0F")
 		pos : ( Window.size[0] - refresh_button.width - self.width - (self.width * 0.6) ,  Window.size[1] * 0.04)
+
+
+<Post>:
+	#elevation: 4.5
+#	shadow_offset: -5, 8
+	md_bg_color : chex("#BE5050")
+	radius : (30 , 30 , 30 , 30)
+	adaptive_height : True
+	padding : dp(10)
+	spacing : dp(8)
+	orientation : "vertical"
+	
+	Label:
+		canvas.before :
+			Color :
+				rgba : chex("#FFFFFF")
+			RoundedRectangle:
+				pos : self.pos
+				size : self.size
+				radius : (50,)
+		
+		size_hint : 1 , None
+		height : 400
+	
+	BoxLayout:
+		size_hint : 1 , None
+		height : 250
+		spacing : dp(8)
+		
+		MDBoxLayout:
+			radius : (24,)
+			md_bg_color : chex("#FFFFFF")
+			size_hint : 0.35 , 1
+		
+		BoxLayout:
+			size_hint : 0.65 , 1
+
+
+<ApplicationSettings>:
+	
+
+<DownloadingView>:
+	overlay_color : ( 0 , 0 , 0 , 0.05)
+	background_color :  ( 0 , 0 , 0 , 0)
+	size_hint : 1 , 1
+	
+	MDBoxLayout:
+		pos_hint : { "center_x" : 0.5 , "center_y" : 0.5 }
+		size_hint : 0.85 , 0.2
+		md_bg_color : chex("#7F0F0F")
+		radius : (30,)
+		orientation : "vertical"
+		padding : dp(10)
+		
+		Label:
+			size_hint : 1 , 0.8
+			text : ". . . D O W N L O A D I N G . . ."
+			font_size : min(self.size) * 0.2
+			font_name : "lato_regular"
+		
+		MDRaisedButton:
+			size_hint : 0.5 , 0.3
+			pos_hint : { "center_x"  : 0.5 }
+			md_bg_color : chex("#FFFFFF")
+			theme_text_color : "Custom"
+			text_color : chex("#7F0F0F")
+			text : "RE-CONNECT"
+			font_name : "lato_bold"
+			font_size : min(self.size) * 0.45
+			opacity : 0
 		
 		
+		
+
+<CategorySelections>:
+	overlay_color : ( 0 , 0 , 0 , 0.05)
+	background_color :  ( 0 , 0 , 0 , 0)
+	size_hint : 1 , 1
+	
+	MDBoxLayout:
+		pos_hint : { "center_x" : 0.5 , "center_y" : 0.5 }
+		size_hint : 0.83 , 0.3
+		md_bg_color : chex("#7F0F0F")
+		radius : (30,)
+		orientation : "vertical"
+		
+		Widget :
+			size_hint : 1 , 0.03
+						
+		Label:
+			size_hint : 1 , 0.2
+			text : "SELECT CATEGORY"
+			font_name : "lato_bold"
+			font_size : min(self.size) * 0.45
+		
+		Label:
+			size_hint : 1 , 0.12
+			font_name : "lato_regular"
+			text : "after selecting, click refresh button"
+			font_size : min(self.size) * 0.42
+		
+		Widget :
+			size_hint : 1 , 0.05
+		
+		MDGridLayout:
+			size_hint : 1 , 0.6
+			cols : 2
+			rows : 2
+			padding : dp(15)
+			spacing : dp(10)
+			
+			CategoryButton:
+				size_hint : 1 , 1
+				text_color : chex("#7F0F0F")
+				md_bg_color : chex("#FFFFFF")
+				text : "CATEGORY"
+				
+			CategoryButton:
+				size_hint : 1 , 1
+				text_color : chex("#FFFFFF")
+				md_bg_color : chex("#CF9797")
+				text : "CATEGORY"
+				
+			CategoryButton:
+				size_hint : 1 , 1
+				text_color : chex("#FFFFFF")
+				md_bg_color : chex("#CF9797")
+				text : "CATEGORY"
+				
+			CategoryButton:
+				size_hint : 1 , 1
+				text_color : chex("#FFFFFF")
+				md_bg_color : chex("#CF9797")
+				text : "CATEGORY"
+				
+
+<CategoryButton@MDRoundFlatIconButton>:
+	line_color : (0, 0 , 0 , 0)				
+	theme_text_color: "Custom"
+	font_name : "lato_black_italic"
+	font_size : min(self.size) * 0.35
+	
+				
 	
 <PostFeeds>:
 	canvas.before:
@@ -62,14 +203,22 @@ MainWindow:
 	MDGridLayout:
 		adaptive_height : True
 		cols : 1
+		padding : [ dp(10) , dp(15) , dp(10) , dp(85)]
+		spacing : dp(20)
 		
+		Post:
+			
+		Post:
 		
+		Post:
+			
+		Post:
 
 
 
 <CategoryBar>:
-	elevation: 4.5
-	shadow_offset: 0, 6
+	#elevation: 4.5
+#	shadow_offset: 0, 6
 	md_bg_color : chex("#6E1616")
 	radius : (50 , 50 , 50 , 50)
 	
@@ -80,10 +229,8 @@ MainWindow:
 		color : chex("#FFFFFF")
 
 
-
-
 <CustomToolBar>:
-	elevation: 4.5
+	elevation: 2.5
 	shadow_offset: 0, 6
 	md_bg_color : chex("#6E1616")
 	radius : (0 , 0 , 50 , 50)
@@ -100,6 +247,9 @@ MainWindow:
 		icon_size : min(Window.size) * 0.11
 		theme_icon_color: "Custom"
 		icon_color : chex("#FFFFFF")
+		
+		on_release:
+			root.parent.category_selections.open()
 	
 	MDIconButton:
 		pos_hint: {"center_x": .5, "center_y": .5}
