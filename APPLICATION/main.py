@@ -14,6 +14,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.lang.builder import Builder
 from kivy.core.text import LabelBase
 from kivy.clock import Clock
+from kivy.properties import StringProperty
 
 class ApplicationSettings(ModalView):
 	pass
@@ -22,7 +23,7 @@ class DownloadingView(ModalView):
 	pass
 
 class CategorySelections(ModalView):
-	pass
+	category : str = StringProperty("LOVE")
 
 class Post(MDBoxLayout , CommonElevationBehavior):
 	pass
@@ -43,9 +44,13 @@ class MainWindow(FloatLayout):
 		super(MainWindow , self ).__init__(**kwargs)
 		self.category_selections = CategorySelections()
 		self.downloading_view = DownloadingView()
+		self.app_settings = ApplicationSettings()
+		
 	
 	def on_kv_post(self , *args):
-		Clock.schedule_once(self.downloading_view.open , 1)
+		pass
+		#Clock.schedule_once(self.app_settings.open , 1)
+		#Clock.schedule_once(self.downloading_view.open , 1)
 		#Clock.schedule_once(self.category_selections.open , 1)
 
 
@@ -59,6 +64,7 @@ LabelBase.register(name = "lato_bold" , fn_regular = "fonts/Lato-Bold.ttf")
 LabelBase.register(name = "lato_bold_italic" , fn_regular = "fonts/Lato-BoldItalic.ttf")
 LabelBase.register(name = "lato_regular" , fn_regular = "fonts/Lato-Regular.ttf")
 LabelBase.register(name = "lato_black_italic" , fn_regular = "fonts/Lato-BlackItalic.ttf")
+LabelBase.register(name = "lato_italic" , fn_regular = "fonts/Lato-Italic.ttf")
 
 BoothFreedomWallApp().run()
 
