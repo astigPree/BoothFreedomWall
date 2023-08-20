@@ -16,9 +16,9 @@ HEADER_SIZE = 40
 SHUTDOWN_SERVER = False
 
 DATABASE_FILENAME = "BOOTH FREEDOM WALL DATABASE.db"
-DATABASE_TABLE = "booth"
+DATABASE_TABLE = ("love_table", "school_table", "life_table", "random_table")
 D_COLS = ('id', 'post', 'category', 'nickname', 'date_publish', 'user_mood')
-CATEGORIES = ('love', 'school', 'thoughts')
+CATEGORIES = ('love', 'school', 'life', 'random')
 MOODS = ('happy', 'angry', 'sad', 'loved', 'empty')
 
 """
@@ -32,10 +32,10 @@ MOODS = ('happy', 'angry', 'sad', 'loved', 'empty')
 
     Actions;
         Receiving Data :
-            News Feed : { category (int) : [ id , ... ] }
+            News Feed : { category (int) : last_id (int or None) }
             
         Sending Data : 
-            News Feed : {   category (int) : [ ( id, post, category, nickname, date_publish, user_mood ) , ... ] 
+            News Feed : {   category (int) : [ ( id , post , nickname, date_publish , user_mood (int) ), ... ] 
                             has_a_next_data (int : 9 ) : boolean }
             Json Problem : { error ( string : 'j' ) : None }
 """
@@ -73,34 +73,45 @@ def send_data(client: socket.socket, data: bytes, timing=30) -> bool :
     return True
 
 
-def getDataFromDatabaseBy(data: dict, limit=5, size_limit=760) -> dict :
+def getDataFromDatabaseBy(key: int, last_id: tp.Union[None, int], table: str, limit=5, size_limit=760) -> dict :
     conn = sqlite3.connect(DATABASE_FILENAME)
     cur = conn.cursor()
-    key = next(iter(data))  # Get the key of data dictionary
 
-    query = f"SELECT * FROM {DATABASE_TABLE} WHERE id NOT IN ({', '.join('?' for _ in data[key])}) AND {D_COLS[2]}='{CATEGORIES[int(key)]}' LIMIT {limit + 1}"
-    cur.execute(query, data[key])
+    # get the latest id
+    if isinstance(last_id, int) :
+        last_id = last_id - 1
+
+        if last_id < 0 :
+            conn.close()
+            return {key : [], 9 : False}
+
+    else :
+        cur.execute(f'SELECT COUNT(*) FROM {table}')
+        last_id = cur.fetchone()[0]
+
+        if last_id < 1 :
+            conn.close()
+            return {key : [], 9 : False}
+
+    query = f"SELECT * FROM {table} WHERE id <= {last_id} ORDER BY id DESC LIMIT {limit + 1}"
+    cur.execute(query)
 
     results = cur.fetchall()
     conn.close()
 
-    if not len(results) :
-        return {key: [], 9: False}
-
-    print(results)
-
     total_bytes = 0
     sending = []
-    for i in range(len(results)):
+    for i in range(len(results)) :
+        if i + 1 > limit :
+            break
+
         total_bytes += sys.getsizeof(results[i])
         if total_bytes < size_limit :
-            category = CATEGORIES.index(results[i][2])
             user_mood = MOODS.index(results[i][5])
+            # appending ( id , post , nickname, date_publish , user_mood (int) )
             sending.append(
-                ( results[i][0] , results[i][1] , category , results[i][3], results[i][4], user_mood)
+                (results[i][0], results[i][1], results[i][3], results[i][4], user_mood)
             )
-        if i+1 > limit:
-            break
 
     return {key : sending, 9 : True if len(results) > limit else False}
 
@@ -115,7 +126,7 @@ class CustomSocket :
         self.__connection = connection
         self.__connection.setblocking(False)
 
-    def received(self) -> tp.Union[None, tp.Dict , int] :
+    def received(self) -> tp.Union[None, tp.Dict, int] :
         header: bytes = received_data(self.__connection, HEADER_SIZE)
         if header is None or not header :
             return None
@@ -127,7 +138,7 @@ class CustomSocket :
         try :
             body: dict = json.loads(body.decode())
         except json.JSONDecodeError :
-            return 104 # Its mean has a json error
+            return 104  # Its mean has a json error
 
         return body
 
@@ -172,18 +183,18 @@ class CustomServer :
         self.clients[user_id] = client
         while not SHUTDOWN_SERVER :
             activity: tp.Union[None, dict[str, tp.Any]] = self.clients[user_id].received()
-            if not activity :  # if None close the socket
+            if not activity or SHUTDOWN_SERVER :  # if None close the socket
                 self.clients[user_id].close()
                 del self.clients[user_id]
                 break
 
             # Do some activity here !!!!!!
-            if isinstance(activity , dict):
+            if isinstance(activity, dict) :  # the data must be a dictionary
                 data = self.userActivity(activity)
-            else:
-                data = {'j': None}
+            else :
+                data = {'j' : None}
 
-            if not self.clients[user_id].send(data=data) :  # if cant send ,close the socket
+            if SHUTDOWN_SERVER or not self.clients[user_id].send(data=data) :  # if cant send ,close the socket
                 self.clients[user_id].close()
                 del self.clients[user_id]
                 break
@@ -193,12 +204,10 @@ class CustomServer :
 
         if key.isdigit() :
             if len(CATEGORIES) > int(key) > -1 :
-                return getDataFromDatabaseBy(action)
+                return getDataFromDatabaseBy(key=int(key), last_id=action[key], table=DATABASE_TABLE[int(key)])
 
         return {'E' : None}  # 'E' Stand for ERROR
 
 
-
-
-if __name__ == "__main__":
+if __name__ == "__main__" :
     CustomServer().runServer()
