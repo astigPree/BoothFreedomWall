@@ -185,7 +185,14 @@ if __name__ == "__main__":
                 print(f"Connection Error : {client.hasConnectionError}")
                 print(f"Data Interruption : {client.hasDataInterruption}")
                 print(f"Sent Data : {client.sendData}")
-                print(f"Received Data : {client.getReceivedData()}")
+                print("Received Data : ")
+                for new_data in client.getReceivedData().values():
+                    if isinstance(new_data , list):
+                        for n_data in new_data:
+                            print(f"  {n_data}")
+                    else :
+                        print(f"  {new_data}")
+
             else:
                 client.shutdownActivities()
         else :
