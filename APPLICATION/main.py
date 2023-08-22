@@ -141,6 +141,7 @@ class MainWindow(FloatLayout) :
         if self.selectedCategory != self.category_selections.category.lower() :
             self.selectedCategory = self.category_selections.category.lower()
             self.lastPostID = None
+            self.hasNextData = False
 
     def connectToServer(self, interval: float) :
         self.downloading_view.open()
