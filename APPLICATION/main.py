@@ -29,7 +29,7 @@ class DownloadingView(ModalView) :
     hasAnError = BooleanProperty(False)
     downloadingText = StringProperty("D O W N L O A D I N G")  # length 21
 
-    downloadingFunction : callable = ObjectProperty()
+    downloadingFunction: callable = ObjectProperty()
 
     def on_pre_open(self) :
         if self.hasAnError :
@@ -83,10 +83,11 @@ class Post(MDBoxLayout, CommonElevationBehavior) :
 
 class PostFeeds(ScrollView) :
     feed_container: MDGridLayout = ObjectProperty()
-    
-    def moveToTop(self):
-    	self.scroll_to(self.feed_container.children[-1])
-	
+
+    def moveToTop(self) :
+        if self.feed_container.children:
+            self.scroll_to(self.feed_container.children[-1])
+
     def clearFeedContainer(self) :
         self.feed_container.clear_widgets()
 
@@ -178,11 +179,11 @@ class MainWindow(FloatLayout) :
                 for value in values :
                     self.post_feeds.displayPosts(value)
                     self.lastPostID = int(value[0])
-         
+
         self.post_feeds.moveToTop()
         self.downloading_view.dismiss()
 
-    def downloadingTruModalView(self , interval : float):
+    def downloadingTruModalView(self, interval: float) :
         # Connecting to server if not connected
         if not self.network.hasSocket :
             if not self.network.connectToServer() :
@@ -214,7 +215,7 @@ class MainWindow(FloatLayout) :
                 for value in values :
                     self.post_feeds.displayPosts(value)
                     self.lastPostID = int(value[0])
-         
+
         self.post_feeds.moveToTop()
         self.downloading_view.dismiss()
 
@@ -226,7 +227,7 @@ class MainWindow(FloatLayout) :
 
 class BoothFreedomWallApp(MDApp) :
 
-    def on_start(self):
+    def on_start(self) :
         Clock.schedule_once(self.root.connectToServer)
 
     def build(self) :

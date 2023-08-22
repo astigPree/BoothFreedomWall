@@ -10,7 +10,6 @@ PORT = 45678
 HEADER_SIZE = 40
 STOP_FUNCTION_ACTIVITY = False
 
-
 MOODS = ('moods/happy.jpeg', 'moods/angry.jpeg', 'moods/sad.jpeg', 'moods/loved.jpeg', 'moods/empty.jpeg')
 
 """
@@ -25,7 +24,7 @@ MOODS = ('moods/happy.jpeg', 'moods/angry.jpeg', 'moods/sad.jpeg', 'moods/loved.
     Actions;
         Receiving Data :
             News Feed : { category (int) : last_id (int or None) }
-            
+
         Sending Data : 
             News Feed : {   category (int) : [ ( id , post , nickname, date_publish , user_mood (int) ), ... ] 
                             has_a_next_data (int : 9 ) : boolean }
