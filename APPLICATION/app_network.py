@@ -8,15 +8,12 @@ import sys
 
 ADDR = "localhost"
 PORT = 45678
-MAX_LISTENER = 500
 
 HEADER_SIZE = 40
 STOP_FUNCTION_ACTIVITY = False
 
-DATABASE_FILENAME = "BOOTH FREEDOM WALL DATABASE.db"
-DATABASE_TABLE = "booth"
 D_COLS = ('id', 'post', 'category', 'nickname', 'date_publish', 'user_mood')
-CATEGORIES = ('love', 'school', 'thoughts')
+CATEGORIES = ('love', 'school', 'life' , 'random')
 MOODS = ('happy', 'angry', 'sad', 'loved', 'empty')
 
 """
@@ -137,11 +134,14 @@ class AppNetworkHandler:
         self.receivedData = None
         return temp
 
-    def sendDataToServer(self , data : dict) -> bool: # Return False if the variable still has a data else True if None
+    def sendDataToServer(self , data : dict): # Return False if the variable still has a data else True if None
         if self.sendData:
             return False
         self.sendData = data
         return True
+
+    def sendDataToServerForce(self , data : dict):
+    	self.sendData = data
 
     def shutdownActivities(self):
         global STOP_FUNCTION_ACTIVITY
@@ -169,34 +169,42 @@ class AppNetworkHandler:
                     self.hasSocket = False
                     self.hasConnectionError = True
                     continue
+   
+    def activity(self):
+    	if self.hasSocket and self.sendData and not self.receivedData:
+    		if not self.conn.send(self.sendData):
+    			self.hasSocket = False
+    			self.hasConnectionError = True
+    		
+    		data = self.conn.received()
+    		if isinstance(data , int) :
+    			self.hasDataInterruption = True
+    		elif isinstance(data , dict):
+    			self.hasDataInterruption = False
+    			self.sendData = None
+    			self.receivedData = data
+    		else:
+    			self.hasSocket = False
+    			self.hasConnectionError = True
 
+#if __name__ == "__main__":
+#    client = AppNetworkHandler()
+#    threading.Thread(target=client.threadActivity).start()
+#    client.connectToServer()
 
-
-if __name__ == "__main__":
-    client = AppNetworkHandler()
-    threading.Thread(target=client.threadActivity).start()
-    client.connectToServer()
-
-    while True:
-        activity = input("\nActivity : ")
-        if len(activity) < 2:
-            if activity != "1":
-                print(f"Socket : {client.hasSocket}")
-                print(f"Connection Error : {client.hasConnectionError}")
-                print(f"Data Interruption : {client.hasDataInterruption}")
-                print(f"Sent Data : {client.sendData}")
-                print("Received Data : ")
-                for new_data in client.getReceivedData().values():
-                    if isinstance(new_data , list):
-                        for n_data in new_data:
-                            print(f"  {n_data}")
-                    else :
-                        print(f"  {new_data}")
-
-            else:
-                client.shutdownActivities()
-        else :
-            if client.sendDataToServer(eval(activity)):
-                print(f"Sending Data : {activity}")
-            else:
-                print("Can't Send Data")
+#    while True:
+#        activity = input("\nActivity : ")
+#        if len(activity) < 2:
+#            if activity != "1":
+#                print(f"Socket : {client.hasSocket}")
+#                print(f"Connection Error : {client.hasConnectionError}")
+#                print(f"Data Interruption : {client.hasDataInterruption}")
+#                print(f"Sent Data : {client.sendData}")
+#                print(f"Received Data : {client.getReceivedData()}")
+#            else:
+#                client.shutdownActivities()
+#        else :
+#            if client.sendDataToServer(eval(activity)):
+#                print(f"Sending Data : {activity}")
+#            else:
+#                print("Can't Send Data")
