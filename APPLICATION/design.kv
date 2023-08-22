@@ -102,6 +102,7 @@ MainWindow:
 	overlay_color : ( 0 , 0 , 0 , 0.05)
 	background_color :  ( 0 , 0 , 0 , 0)
 	size_hint : 1 , 1
+	auto_dismiss : True if self.hasAnError or self.isClosing else False
 
 	info_text : info_text
 
@@ -126,13 +127,16 @@ MainWindow:
 			md_bg_color : chex("#FFFFFF")
 			theme_text_color : "Custom"
 			text_color : chex("#7F0F0F")
-			text : "RE-CONNECT"
+			text : "RE-CONNECT" if root.hasAnError else "CLOSE IT"
 			font_name : "lato_bold"
 			font_size : min(self.size) * 0.45
-			opacity : 1 if root.hasAnError else 0
+			opacity : 1 if root.hasAnError or root.isClosing else 0
+			disabled : False if root.hasAnError or root.isClosing else True
 
 			on_release:
-			    Clock.schedule_once(root.downloadingFunction)
+			    if root.hasAnError : Clock.schedule_once(root.downloadingFunction) 
+			    if root.isClosing : Clock.schedule_once(root.closingAppFunction) 
+			    
 
 
 <CategorySelections>:
@@ -239,6 +243,7 @@ MainWindow:
 		cols : 1
 		padding : [ dp(10) , dp(15) , dp(10) , dp(85)]
 		spacing : dp(20)
+		
 
 
 <Post>:
@@ -278,7 +283,7 @@ MainWindow:
 
 		MDBoxLayout:
 			radius : ((min(self.size) * 0.12),)
-			md_bg_color : chex("#FFFFFF")
+			md_bg_color : chex("#CF9797")
 			size_hint : 0.35 , 1
 			padding : dp(12)
 
@@ -370,3 +375,5 @@ MainWindow:
 
 		on_release:
 			root.parent.app_settings.open()
+
+

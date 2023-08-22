@@ -27,18 +27,29 @@ class DownloadingView(ModalView) :
     info_text: Label = ObjectProperty()
 
     hasAnError = BooleanProperty(False)
+    isClosing = BooleanProperty(False)
+    
+    closingAppText = StringProperty("C L O S E   T H E   A P P ?")
     downloadingText = StringProperty("D O W N L O A D I N G")  # length 21
 
-    downloadingFunction: callable = ObjectProperty()
+    downloadingFunction : callable = ObjectProperty()
+    closingAppFunction : callable = ObjectProperty()
+    
 
     def on_pre_open(self) :
         if self.hasAnError :
             self.hasAnError = False
-        self.info_text.text = self.downloadingText
+            
+        self.info_text.text = self.downloadingText if not self.isClosing else self.closingAppText
         Clock.schedule_once(self.animation, 0.5)
-
+    
+    def on_pre_dismiss(self):
+    	if self.isClosing:
+    		self.isClosing = False
+    
     def animation(self, interval: int) :
         if self.hasAnError : return
+        if self.isClosing : return 
 
         if len(self.info_text.text) == 21 :
             self.info_text.text = f". {self.info_text.text} ."  # length 25
@@ -60,8 +71,8 @@ class DownloadingView(ModalView) :
         # display an server down error
         self.hasAnError = True
         self.info_text.text = "CAN'T CONNECT TO SERVER"
-
-
+    
+    
 class CategorySelections(ModalView) :
     category: str = StringProperty("LOVE")
 
@@ -83,11 +94,11 @@ class Post(MDBoxLayout, CommonElevationBehavior) :
 
 class PostFeeds(ScrollView) :
     feed_container: MDGridLayout = ObjectProperty()
-
-    def moveToTop(self) :
-        if self.feed_container.children:
-            self.scroll_to(self.feed_container.children[-1])
-
+    
+    def moveToTop(self):
+    	if self.feed_container.children:
+    		self.scroll_to(self.feed_container.children[-1])
+	
     def clearFeedContainer(self) :
         self.feed_container.clear_widgets()
 
@@ -109,7 +120,7 @@ class MainWindow(FloatLayout) :
     tool_bar: CustomToolBar = ObjectProperty()
     category_bar: CategoryBar = ObjectProperty()
     post_feeds: PostFeeds = ObjectProperty()
-
+	
     hasNextData = BooleanProperty(False)
     lastPostID: tp.Union[None, int] = None
     selectedCategory: str = StringProperty("love")
@@ -125,14 +136,7 @@ class MainWindow(FloatLayout) :
         self.downloading_view.downloadingFunction = self.downloadingTruModalView
         self.category_selections.bind(on_dismiss=self.updateCategory)
         Window.bind(on_keyboard=self.on_key)
-
-    def on_kv_post(self, *args) :
-        # Clock.schedule_interval(self.clockActivity , 1/30)
-        # Clock.schedule_once(self.app_settings.open , 1)
-        # Clock.schedule_once(self.downloading_view.open , 1)
-        # Clock.schedule_once(self.category_selections.open , 1)
-        pass
-
+        
     def updateCategory(self, *args) :
         if self.selectedCategory != self.category_selections.category.lower() :
             self.selectedCategory = self.category_selections.category.lower()
@@ -179,11 +183,11 @@ class MainWindow(FloatLayout) :
                 for value in values :
                     self.post_feeds.displayPosts(value)
                     self.lastPostID = int(value[0])
-
+         
         self.post_feeds.moveToTop()
         self.downloading_view.dismiss()
 
-    def downloadingTruModalView(self, interval: float) :
+    def downloadingTruModalView(self , interval : float):
         # Connecting to server if not connected
         if not self.network.hasSocket :
             if not self.network.connectToServer() :
@@ -215,23 +219,28 @@ class MainWindow(FloatLayout) :
                 for value in values :
                     self.post_feeds.displayPosts(value)
                     self.lastPostID = int(value[0])
-
+         
         self.post_feeds.moveToTop()
         self.downloading_view.dismiss()
-
+    
     def on_key(self, window, key, *args) :
         if key == 27 :
-            # Create a Design for exiting the app
-            pass
-
+            self.downloading_view.isClosing = True
+            self.downloading_view.open()
+            return True
+        
 
 class BoothFreedomWallApp(MDApp) :
 
-    def on_start(self) :
+    def on_start(self):
         Clock.schedule_once(self.root.connectToServer)
+        self.root.downloading_view.closingAppFunction = self.closeTheApp
 
     def build(self) :
         return Builder.load_file("design.kv")
+    
+    def closeTheApp(self , interval):
+    	self.stop()
 
 
 LabelBase.register(name="lato_bold", fn_regular="fonts/Lato-Bold.ttf")
