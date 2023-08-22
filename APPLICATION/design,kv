@@ -1,0 +1,384 @@
+#:import chex kivy.utils.get_color_from_hex
+#:import Window kivy.core.window.Window
+#:import Clock kivy.clock.Clock
+
+MainWindow:
+
+	tool_bar : tool_bar
+	category_bar : category_bar
+	post_feeds : post_feeds
+	refresh_button : refresh_button
+	next_page_button : next_page_button
+
+	CustomToolBar:
+		id : tool_bar
+		size_hint : None , None
+		height : Window.size[1] * 0.088
+		width : Window.size[0]
+		pos : (0 , Window.size[1] - self.height )
+
+	CategoryBar:
+		id : category_bar
+		size_hint : None , None
+		height : Window.size[1] * 0.05
+		width : Window.size[0] * 0.45
+		pos : ( (Window.size[0] - self.width ) / 2 , (Window.size[1] - self.height - tool_bar.height - (Window.size[1] * 0.015)) )
+
+	PostFeeds:
+		id : post_feeds
+		size_hint : None , None
+		height : Window.size[1] * 0.79
+		width : Window.size[0] * 0.95
+		pos : ( (Window.size[0] - self.width  ) / 2 , Window.size[1] * 0.02 )
+
+	MDFloatingActionButton:
+		id : refresh_button
+		icon : "refresh"
+		icon_size : min(Window.size) * 0.11
+		theme_icon_color: "Custom"
+		icon_color : chex("#FFFFFF")
+		md_bg_color: chex("#7F0F0F")
+		pos : ( Window.size[0] - self.width - (self.width * 0.3) ,  Window.size[1] * 0.04)
+
+		on_release:
+			Clock.schedule_once(root.downloadDataFromServer)
+
+	MDFloatingActionButton:
+		id : next_page_button
+		icon : "page-next-outline"
+		icon_size : min(Window.size) * 0.11
+		theme_icon_color: "Custom"
+		icon_color : chex("#FFFFFF")
+		md_bg_color: chex("#7F0F0F")
+		pos : ( Window.size[0] - refresh_button.width - self.width - (self.width * 0.6) ,  Window.size[1] * 0.04)
+		disabled : False if root.hasNextData else True
+		opacity : 1 if root.hasNextData else 0
+
+		on_release:
+			root.downloading_view.open()
+
+<ApplicationSettings>:
+	overlay_color : ( 0 , 0 , 0 , 0.05)
+	background_color :  ( 0 , 0 , 0 , 0)
+	size_hint : 1 , 1
+
+	MDBoxLayout:
+		pos_hint : { "center_x" : 0.5 , "center_y" : 0.5 }
+		size_hint : 0.94 , 0.65
+		md_bg_color : chex("#7F0F0F")
+		radius : ((min(self.size) * 0.06),)
+		orientation : "vertical"
+		padding : dp(10)
+		spacing : dp(5)
+
+		Label:
+			size_hint : 1 , 0.13
+			text : "INFORMATION"
+			font_name : "lato_bold"
+			font_size : min(self.size) * 0.36
+			color : chex("#6E1616")
+
+			canvas.before:
+				Color :
+					rgba : chex("#FFFFFF")
+				RoundedRectangle:
+					pos : self.pos
+					size : self.size
+					radius : ((min(self.size) * 0.3),)
+
+
+		ScrollView:
+			size_hint : 1 , 0.87
+
+			MDGridLayout:
+				adaptive_height : True
+				cols : 1
+
+
+
+
+<DownloadingView>:
+	overlay_color : ( 0 , 0 , 0 , 0.05)
+	background_color :  ( 0 , 0 , 0 , 0)
+	size_hint : 1 , 1
+
+	info_text : info_text
+
+	MDBoxLayout:
+		pos_hint : { "center_x" : 0.5 , "center_y" : 0.5 }
+		size_hint : 0.85 , 0.2
+		md_bg_color : chex("#7F0F0F")
+		radius : (30,)
+		orientation : "vertical"
+		padding : dp(10)
+
+		Label:
+			id : info_text
+			size_hint : 1 , 0.8
+			text : ""
+			font_size : min(self.size) * 0.2
+			font_name : "lato_italic"
+
+		MDRaisedButton:
+			size_hint : 0.5 , 0.3
+			pos_hint : { "center_x"  : 0.5 }
+			md_bg_color : chex("#FFFFFF")
+			theme_text_color : "Custom"
+			text_color : chex("#7F0F0F")
+			text : "RE-CONNECT"
+			font_name : "lato_bold"
+			font_size : min(self.size) * 0.45
+			opacity : 1 if root.hasAnError else 0
+
+			on_release:
+			    Clock.schedule_once(root.downloadingFunction)
+
+
+<CategorySelections>:
+	overlay_color : ( 0 , 0 , 0 , 0.05)
+	background_color :  ( 0 , 0 , 0 , 0)
+	size_hint : 1 , 1
+
+	MDBoxLayout:
+		pos_hint : { "center_x" : 0.5 , "center_y" : 0.5 }
+		size_hint : 0.83 , 0.3
+		md_bg_color : chex("#7F0F0F")
+		radius : ((min(self.size) * 0.065),)
+		orientation : "vertical"
+
+		Widget :
+			size_hint : 1 , 0.03
+
+		Label:
+			size_hint : 1 , 0.2
+			text : "SELECT CATEGORY"
+			font_name : "lato_bold"
+			font_size : min(self.size) * 0.45
+
+		Label:
+			size_hint : 1 , 0.12
+			font_name : "lato_regular"
+			text : "after selecting, click refresh button"
+			font_size : min(self.size) * 0.42
+
+		Widget :
+			size_hint : 1 , 0.05
+
+		MDGridLayout:
+			size_hint : 1 , 0.6
+			cols : 2
+			rows : 2
+			padding : dp(15)
+			spacing : dp(10)
+
+			CategoryButton:
+				size_hint : 1 , 1
+				text_color : chex("#7F0F0F") if self.text == root.category else chex("#FFFFFF")
+				md_bg_color : chex("#FFFFFF") if self.text == root.category else chex("#CF9797")
+				text : "LOVE"
+
+				on_release :
+					root.category = self.text
+					root.dismiss()
+
+			CategoryButton:
+				size_hint : 1 , 1
+				text_color : chex("#7F0F0F") if self.text == root.category else chex("#FFFFFF")
+				md_bg_color : chex("#FFFFFF") if self.text == root.category else chex("#CF9797")
+				text : "SCHOOL"
+
+				on_release :
+					root.category = self.text
+					root.dismiss()
+
+			CategoryButton:
+				size_hint : 1 , 1
+				text_color : chex("#7F0F0F") if self.text == root.category else chex("#FFFFFF")
+				md_bg_color : chex("#FFFFFF") if self.text == root.category else chex("#CF9797")
+				text : "LIFE"
+
+				on_release :
+					root.category = self.text
+					root.dismiss()
+
+			CategoryButton:
+				size_hint : 1 , 1
+				text_color : chex("#7F0F0F") if self.text == root.category else chex("#FFFFFF")
+				md_bg_color : chex("#FFFFFF") if self.text == root.category else chex("#CF9797")
+				text : "RANDOM"
+
+				on_release :
+					root.category = self.text
+					root.dismiss()
+
+
+<CategoryButton@MDRoundFlatIconButton>:
+	line_color : (0, 0 , 0 , 0)
+	theme_text_color: "Custom"
+	font_name : "lato_black_italic"
+	font_size : min(self.size) * 0.35
+
+
+
+<PostFeeds>:
+
+    feed_container : feed_container
+
+	canvas.before:
+		Color :
+			rgba : chex("#CF9797")
+		RoundedRectangle:
+			pos : self.pos
+			size : self.size
+			radius : ((min(self.size) * 0.03),)
+
+	MDGridLayout:
+		adaptive_height : True
+		cols : 1
+		padding : [ dp(10) , dp(15) , dp(10) , dp(85)]
+		spacing : dp(20)
+
+		Post:
+
+		Post:
+
+		Post:
+
+		Post:
+
+
+<Post>:
+	#elevation: 4.5
+#	shadow_offset: -5, 8
+	md_bg_color : chex("#BE5050")
+	radius : ((min(self.size) * 0.06),)
+	adaptive_height : True
+	padding : dp(10)
+	spacing : dp(8)
+	orientation : "vertical"
+
+	mood : mood
+
+	Label:
+		canvas.before :
+			Color :
+				rgba : chex("#FFFFFF")
+			RoundedRectangle:
+				pos : self.pos
+				size : self.size
+				radius : ((min(self.size) * 0.12),)
+
+		halign : "center"
+		size_hint : 1 , None
+		text_size : self.width - (min(self.size) * 0.5) , None
+		height : self.texture_size[1] + min(Window.size) * 0.06
+		text : root.content
+		color : "black"
+		font_name : "lato_regular"
+		font_size : min(Window.size) * 0.045
+
+	BoxLayout:
+		size_hint : 1 , None
+		height : 250
+		spacing : dp(8)
+
+		MDBoxLayout:
+			radius : ((min(self.size) * 0.12),)
+			md_bg_color : chex("#FFFFFF")
+			size_hint : 0.35 , 1
+			padding : dp(5)
+
+			Image:
+			    id : mood
+			    source : None
+			    keep_ratio : False
+			    allow_stretch : True
+
+		BoxLayout:
+			size_hint : 0.65 , 1
+			orientation: "vertical"
+			spacing : dp(10)
+
+			Label:
+				canvas.before :
+					Color :
+						rgba : chex("#FFFFFF")
+					RoundedRectangle:
+						pos : self.pos
+						size : self.size
+						radius : ((min(self.size) * 0.5),)
+
+				pos_hint : { "center_x" : 0.5 }
+				size_hint : 0.75 , 0.45
+				text : root.post_date
+				color : "black"
+				font_name : "lato_regular"
+				font_size : min(self.size) * 0.4
+
+			Label:
+				canvas.before :
+					Color :
+						rgba : chex("#FFFFFF")
+					RoundedRectangle:
+						pos : self.pos
+						size : self.size
+						radius : ((min(self.size) * 0.5),)
+
+				pos_hint : { "center_x" : 0.5 }
+				size_hint : 0.95 , 0.55
+				text : root.post_owner
+				color : "black"
+				font_name : "lato_bold"
+				font_size : ( min(Window.size) * 0.044) - (len(self.text) / 2.5)
+
+				on_size :
+					print(self.font_size)
+
+
+
+<CategoryBar>:
+	#elevation: 4.5
+#	shadow_offset: 0, 6
+	md_bg_color : chex("#6E1616")
+	radius : ((min(self.size) * 0.5),)
+
+	Label:
+		text : root.parent.category_selections.category
+		font_name : "lato_bold_italic"
+		font_size : min(self.size) * 0.45
+		color : chex("#FFFFFF")
+
+
+<CustomToolBar>:
+	elevation: 2.5
+	shadow_offset: 0, 6
+	md_bg_color : chex("#6E1616")
+	radius : (0 , 0 , min(self.size) * 0.25, min(self.size) * 0.25)
+
+	MDLabel :
+		text : "   OC  WALL"
+		font_name : "lato_bold"
+		font_size : min(self.size) * 0.55
+		color : chex("#FFFFFF")
+
+	MDIconButton:
+		pos_hint: {"center_x": .5, "center_y": .5}
+		icon : "form-select"
+		icon_size : min(Window.size) * 0.11
+		theme_icon_color: "Custom"
+		icon_color : chex("#FFFFFF")
+
+		on_release:
+			root.parent.category_selections.open()
+
+	MDIconButton:
+		pos_hint: {"center_x": .5, "center_y": .5}
+		icon : "cog-outline"
+		icon_size : min(Window.size) * 0.11
+		theme_icon_color: "Custom"
+		icon_color : chex("#FFFFFF")
+
+		on_release:
+			root.parent.app_settings.open()
+
+

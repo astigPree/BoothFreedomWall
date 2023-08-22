@@ -1,6 +1,4 @@
-import os
 import socket
-import threading
 import time
 import typing as tp
 import json
@@ -12,9 +10,8 @@ PORT = 45678
 HEADER_SIZE = 40
 STOP_FUNCTION_ACTIVITY = False
 
-D_COLS = ('id', 'post', 'category', 'nickname', 'date_publish', 'user_mood')
-CATEGORIES = ('love', 'school', 'life' , 'random')
-MOODS = ('happy', 'angry', 'sad', 'loved', 'empty')
+
+MOODS = ('moods/happy.jpeg', 'moods/angry.jpeg', 'moods/sad.jpeg', 'moods/loved.jpeg', 'moods/empty.jpeg')
 
 """
     Database Data ;
@@ -27,10 +24,10 @@ MOODS = ('happy', 'angry', 'sad', 'loved', 'empty')
 
     Actions;
         Receiving Data :
-            News Feed : { category (int) : [ id , ... ] }
-
+            News Feed : { category (int) : last_id (int or None) }
+            
         Sending Data : 
-            News Feed : {   category (int) : [ ( id, post, category, nickname, date_publish, user_mood ) , ... ] 
+            News Feed : {   category (int) : [ ( id , post , nickname, date_publish , user_mood (int) ), ... ] 
                             has_a_next_data (int : 9 ) : boolean }
             Json Problem : { error ( string : 'j' ) : None }
 """
@@ -107,18 +104,17 @@ class CustomSocket :
         self.__connection = None
 
 
-class AppNetworkHandler:
-
+class AppNetworkHandler :
     conn = CustomSocket()
-    closeApp = False # Used to notify if the user want to stop activity
-    hasSocket = False # Used to check if it was connected to server
-    hasConnectionError = False # Trigger if it has connection error
-    hasDataInterruption = False # Trigger if it has data interruption
+    closeApp = False  # Used to notify if the user want to stop activity
+    hasSocket = False  # Used to check if it was connected to server
+    hasConnectionError = False  # Trigger if it has connection error
+    hasDataInterruption = False  # Trigger if it has data interruption
 
-    receivedData : tp.Union[None , dict] = None # Used for storing received data from server
-    sendData : tp.Union[None , dict ] = None # Used for storing sending data to server
+    receivedData: tp.Union[None, dict] = None  # Used for storing received data from server
+    sendData: tp.Union[None, dict] = None  # Used for storing sending data to server
 
-    def connectToServer(self) -> bool:
+    def connectToServer(self) -> bool :
         connection = create_socket()
         if connection :
             self.conn.setSocket(connection)
@@ -129,39 +125,39 @@ class AppNetworkHandler:
             self.hasSocket = False
             return False
 
-    def getReceivedData(self) -> dict:
+    def getReceivedData(self) -> dict :
         temp = self.receivedData
         self.receivedData = None
         return temp
 
-    def sendDataToServer(self , data : dict): # Return False if the variable still has a data else True if None
-        if self.sendData:
+    def sendDataToServer(self, data: dict) :  # Return False if the variable still has a data else True if None
+        if self.sendData :
             return False
         self.sendData = data
         return True
 
-    def sendDataToServerForce(self , data : dict):
-    	self.sendData = data
+    def sendDataToServerForce(self, data: dict) :
+        self.sendData = data
 
-    def shutdownActivities(self):
+    def shutdownActivities(self) :
         global STOP_FUNCTION_ACTIVITY
         STOP_FUNCTION_ACTIVITY = True
         self.closeApp = True
         self.conn.close()
         self.hasSocket = False
 
-    def threadActivity(self):
-        while not self.closeApp:
-            if self.hasSocket and self.sendData and not self.receivedData:
-                if not self.conn.send(self.sendData):
+    def threadActivity(self) :
+        while not self.closeApp :
+            if self.hasSocket and self.sendData and not self.receivedData :
+                if not self.conn.send(self.sendData) :
                     self.hasSocket = False
                     self.hasConnectionError = True
                     continue
 
                 data = self.conn.received()
-                if isinstance(data , int) :
+                if isinstance(data, int) :
                     self.hasDataInterruption = True
-                elif isinstance(data , dict):
+                elif isinstance(data, dict) :
                     self.hasDataInterruption = False
                     self.sendData = None
                     self.receivedData = data
@@ -169,25 +165,25 @@ class AppNetworkHandler:
                     self.hasSocket = False
                     self.hasConnectionError = True
                     continue
-   
-    def activity(self):
-    	if self.hasSocket and self.sendData and not self.receivedData:
-    		if not self.conn.send(self.sendData):
-    			self.hasSocket = False
-    			self.hasConnectionError = True
-    		
-    		data = self.conn.received()
-    		if isinstance(data , int) :
-    			self.hasDataInterruption = True
-    		elif isinstance(data , dict):
-    			self.hasDataInterruption = False
-    			self.sendData = None
-    			self.receivedData = data
-    		else:
-    			self.hasSocket = False
-    			self.hasConnectionError = True
 
-#if __name__ == "__main__":
+    def activity(self) :
+        if self.hasSocket and self.sendData and not self.receivedData :
+            if not self.conn.send(self.sendData) :
+                self.hasSocket = False
+                self.hasConnectionError = True
+
+            data = self.conn.received()
+            if isinstance(data, int) :
+                self.hasDataInterruption = True
+            elif isinstance(data, dict) :
+                self.hasDataInterruption = False
+                self.sendData = None
+                self.receivedData = data
+            else :
+                self.hasSocket = False
+                self.hasConnectionError = True
+
+# if __name__ == "__main__":
 #    client = AppNetworkHandler()
 #    threading.Thread(target=client.threadActivity).start()
 #    client.connectToServer()
