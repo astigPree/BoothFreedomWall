@@ -31,7 +31,7 @@ class DownloadingView(ModalView) :
 
     downloadingFunction : callable = ObjectProperty()
 
-    def on_open(self) :
+    def on_pre_open(self) :
         if self.hasAnError :
             self.hasAnError = False
         self.info_text.text = self.downloadingText
@@ -83,7 +83,10 @@ class Post(MDBoxLayout, CommonElevationBehavior) :
 
 class PostFeeds(ScrollView) :
     feed_container: MDGridLayout = ObjectProperty()
-
+    
+    def moveToTop(self):
+    	self.scroll_to(self.feed_container.children[-1])
+	
     def clearFeedContainer(self) :
         self.feed_container.clear_widgets()
 
@@ -174,8 +177,9 @@ class MainWindow(FloatLayout) :
             else :
                 for value in values :
                     self.post_feeds.displayPosts(value)
-                self.lastPostID = int(value[0])
-
+                    self.lastPostID = int(value[0])
+         
+        self.post_feeds.moveToTop()
         self.downloading_view.dismiss()
 
     def downloadingTruModalView(self , interval : float):
@@ -209,8 +213,9 @@ class MainWindow(FloatLayout) :
             else :
                 for value in values :
                     self.post_feeds.displayPosts(value)
-                self.lastPostID = int(value[0])
-
+                    self.lastPostID = int(value[0])
+         
+        self.post_feeds.moveToTop()
         self.downloading_view.dismiss()
 
     def on_key(self, window, key, *args) :
