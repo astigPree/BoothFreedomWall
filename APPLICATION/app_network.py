@@ -11,7 +11,7 @@ HEADER_SIZE = 40
 STOP_FUNCTION_ACTIVITY = False
 
 
-MOODS = ('moods/happy.jpeg', 'moods/angry.jpeg', 'moods/sad.jpeg', 'moods/loved.jpeg', 'moods/empty.jpeg')
+MOODS = ('moods/happy.png', 'moods/angry.png', 'moods/sad.png', 'moods/loved.png', 'moods/empty.png')
 
 """
     Database Data ;
@@ -183,24 +183,3 @@ class AppNetworkHandler :
                 self.hasSocket = False
                 self.hasConnectionError = True
 
-# if __name__ == "__main__":
-#    client = AppNetworkHandler()
-#    threading.Thread(target=client.threadActivity).start()
-#    client.connectToServer()
-
-#    while True:
-#        activity = input("\nActivity : ")
-#        if len(activity) < 2:
-#            if activity != "1":
-#                print(f"Socket : {client.hasSocket}")
-#                print(f"Connection Error : {client.hasConnectionError}")
-#                print(f"Data Interruption : {client.hasDataInterruption}")
-#                print(f"Sent Data : {client.sendData}")
-#                print(f"Received Data : {client.getReceivedData()}")
-#            else:
-#                client.shutdownActivities()
-#        else :
-#            if client.sendDataToServer(eval(activity)):
-#                print(f"Sending Data : {activity}")
-#            else:
-#                print("Can't Send Data")
