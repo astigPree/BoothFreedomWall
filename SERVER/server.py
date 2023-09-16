@@ -21,6 +21,8 @@ D_COLS = ('id', 'post', 'category', 'nickname', 'date_publish', 'user_mood')
 CATEGORIES = ('love', 'school', 'life', 'random')
 MOODS = ('happy', 'angry', 'sad', 'loved', 'empty')
 
+UPDATE = "" # Use to inform the users if there is an update information about the applications
+
 """
     Database Data ;
         - id (int) 
@@ -191,6 +193,8 @@ class CustomServer :
             # Do some activity here !!!!!!
             if isinstance(activity, dict) :  # the data must be a dictionary
                 data = self.userActivity(activity)
+                if not activity.get("10") and UPDATE:
+                    data["10"] = UPDATE
             else :
                 data = {'j' : None}
 
