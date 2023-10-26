@@ -51,6 +51,7 @@ requirements = python3crystax==3.6,kivy
 
 # (str) Presplash of the application
 presplash.filename = splash.png
+android.presplash_color = #FFFFFF
 
 # (str) Icon of the application
 icon.filename = icon.png
@@ -72,7 +73,7 @@ orientation = portrait
 osx.python_version = 3
 
 # Kivy version to use
-osx.kivy_version = 2.0.0
+osx.kivy_version = 1.10.1
 
 #
 # Android specific
