@@ -1,3 +1,5 @@
+__version__ = "1.0"
+
 from kivymd.app import MDApp
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -11,17 +13,17 @@ from kivy.uix.image import Image
 from kivy.lang.builder import Builder
 from kivy.core.text import LabelBase
 from kivy.core.window import Window
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
 from kivy.properties import BooleanProperty, StringProperty, ObjectProperty
 
 import typing as tp
+from threading import Thread
 
 from app_network import AppNetworkHandler, MOODS
 
 
 class ApplicationSettings(ModalView) :
-    pass
-
+    update_label : Label = ObjectProperty()
 
 class DownloadingView(ModalView) :
     info_text: Label = ObjectProperty()
@@ -77,7 +79,7 @@ class CategorySelections(ModalView) :
     category: str = StringProperty("LOVE")
 
 
-class Post(MDBoxLayout, CommonElevationBehavior) :
+class Post(MDBoxLayout) :
     post_id: tp.Union[int, None] = None
     content: str = StringProperty("")
     mood: Image = ObjectProperty()
@@ -149,7 +151,8 @@ class MainWindow(FloatLayout) :
             self.downloading_view.hasAnServerDownError()
         else :
             self.downloading_view.dismiss()
-
+     
+    @mainthread
     def downloadDataFromServer(self, interval: float) :
         self.downloading_view.open()
 
@@ -160,7 +163,8 @@ class MainWindow(FloatLayout) :
                 return
 
         # Preparing the data to be sent
-        data = {self.listOfCategories.index(self.selectedCategory) : self.lastPostID}
+        # data = { index of category : last post id ,  recieved update : True if recieve else False }
+        data = {self.listOfCategories.index(self.selectedCategory) : self.lastPostID , 10 : True if self.app_settings.update_label.text else False}
         self.network.sendDataToServerForce(data)
 
         # Do the activity
@@ -180,6 +184,10 @@ class MainWindow(FloatLayout) :
         for key, values in received_data.items() :
             if key == "9" :
                 self.hasNextData = values
+            elif key == "update":
+            	# values : str
+            	self.app_settings.update_label = values
+            	Clock.schedule_once(self.app_settings.open , 1)
             else :
                 for value in values :
                     self.post_feeds.displayPosts(value)
@@ -187,7 +195,8 @@ class MainWindow(FloatLayout) :
          
         self.post_feeds.moveToTop()
         self.downloading_view.dismiss()
-
+        
+    @mainthread
     def downloadingTruModalView(self , interval : float):
         # Connecting to server if not connected
         if not self.network.hasSocket :
@@ -196,9 +205,10 @@ class MainWindow(FloatLayout) :
                 return
 
         # Preparing the data to be sent
-        data = {self.listOfCategories.index(self.selectedCategory) : self.lastPostID}
+        # data = { index of category : last post id ,  recieved update : True if recieve else False }
+        data = {self.listOfCategories.index(self.selectedCategory) : self.lastPostID , 10 : True if self.app_settings.update_label.text else False}
         self.network.sendDataToServerForce(data)
-
+        
         # Do the activity
         self.network.activity()
 
@@ -216,6 +226,10 @@ class MainWindow(FloatLayout) :
         for key, values in received_data.items() :
             if key == "9" :
                 self.hasNextData = values
+            elif key == "update":
+            	# values : str
+            	self.app_settings.update_label = values
+            	Clock.schedule_once(self.app_settings.open , 1)
             else :
                 for value in values :
                     self.post_feeds.displayPosts(value)
@@ -234,7 +248,8 @@ class MainWindow(FloatLayout) :
 class BoothFreedomWallApp(MDApp) :
 
     def on_start(self):
-        Clock.schedule_once(self.root.connectToServer)
+        Thread(target=self.root.connectToServer , args=(None, )).start()
+        #Clock.schedule_once(self.root.connectToServer)
         self.root.downloading_view.closingAppFunction = self.closeTheApp
 
     def build(self) :
