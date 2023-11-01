@@ -103,7 +103,25 @@ MainWindow:
 				
 				UpdateInformationLabel:
 					id : update_label
-					text : "y" * 100
+					text : ""
+				
+				UpdateInformationLabel:
+					text : "[font=lato_bold]DEVELOPER[/font]"
+					font_size : min(Window.size) * 0.06
+				Image:
+					size_hint : 1 , None
+					height : min(Window.size) * 0.65
+					source : "moods/guanz.png"
+					allow_stretch : True
+					keep_ratio : False
+					keep_data : True
+				UpdateInformationLabel:
+					text : "[font=lato_bold]NAME :[/font] Ericson Mark A. Guanzon"
+				UpdateInformationLabel:
+					text : "[font=lato_bold]COURSE :[/font] Bachelor Of Science in Computer Science"
+				UpdateInformationLabel:
+					text : "[font=lato_bold]YEAR :[/font] 4th Year"
+
 
 <UpdateInformationLabel@Label> :
 	size_hint : 1 , None
