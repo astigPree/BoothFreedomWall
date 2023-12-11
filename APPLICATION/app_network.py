@@ -32,11 +32,27 @@ MOODS = ('moods/happy.png', 'moods/angry.png', 'moods/sad.png', 'moods/loved.png
             Json Problem : { error ( string : 'j' ) : None }
 """
 
+def get_hostpot_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # This sends a UDP packet to a known server (Google's DNS server) to get the local address
+        s.connect(('8.8.8.8', 80))
+        hostpot_address = s.getsockname()[0]
+    except socket.error:
+        hostpot_address = None
+    finally:
+        s.close()
+    
+    return hostpot_address
+
 
 def create_socket() -> tp.Union[socket.socket, None] :
     try :
+        HOTSPOT_ADDR = get_hostpot_address()
+        if not HOTSPOT_ADDR:
+        	raise socket.error("Can't Connect")
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.connect((ADDR, PORT))
+        server.connect((HOTSPOT_ADDR, PORT))
     except socket.error :
         return None
     return server
