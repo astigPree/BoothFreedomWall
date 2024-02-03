@@ -146,10 +146,11 @@ class MainWindow(FloatLayout) :
             self.hasNextData = False
 
     def connectToServer(self, interval: float) :
-        self.downloading_view.open()
-        if not self.network.connectToServer() :
-            self.downloading_view.hasAnServerDownError()
-        else :
+        try:
+        	self.downloading_view.open()
+        	if not self.network.connectToServer() :
+        		self.downloading_view.hasAnServerDownError()
+        except TypeError:
             self.downloading_view.dismiss()
      
     @mainthread
