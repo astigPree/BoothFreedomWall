@@ -36,13 +36,14 @@ def get_hostpot_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         # This sends a UDP packet to a known server (Google's DNS server) to get the local address
-        s.connect(('8.8.8.8', 80))
+        s.connect(('1.1.1.1', 80))
         hostpot_address = s.getsockname()[0]
     except socket.error:
         hostpot_address = None
     finally:
         s.close()
     
+    print(f"Hostpot : {hostpot_address}")
     return hostpot_address
 
 
@@ -53,7 +54,7 @@ def create_socket() -> tp.Union[socket.socket, None] :
         	raise socket.error("Can't Connect")
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.connect((HOTSPOT_ADDR, PORT))
-    except socket.error :
+    except socket.error as what:
         return None
     return server
 
