@@ -169,8 +169,7 @@ buildozer android debug
 
 ---
 
-
-# Images
+ 
 # Main Home of Application
 ![App Preview 1](App_Images/home.jpg)
 # Developer Information
