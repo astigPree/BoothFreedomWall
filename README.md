@@ -136,7 +136,7 @@ Future improvements could include:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/BoothFreedomWall.git
+git clone https://github.com/astigPree/BoothFreedomWall.git
 cd BoothFreedomWall
 ```
 
