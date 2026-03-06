@@ -149,7 +149,7 @@ pip install kivy kivymd
 ### 3. Run the Server
 ```bash
 cd SERVER
-python main.py
+python server.py
 ```
 
 ### 4. Run the application
